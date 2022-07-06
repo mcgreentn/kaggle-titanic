@@ -15,4 +15,6 @@ class Titanic(Dataset):
         return df
 
     def __getitem__(self, index):
-        return self.raw_data.loc[index]
+        y = self.raw_data["Survived"]
+        x = self.raw_data.drop["Survived"]
+        return x.iloc[index].to_numpy(), y.iloc[index].to_numpy()

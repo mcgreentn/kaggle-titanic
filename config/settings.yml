@@ -3,8 +3,17 @@ models:
     input_size: 10
     output_size: 1
     hidden_size: 256
-    hidden_layers: 1
+    hidden_count: 1
     lr: 0.001
 
 config:
   input_loc: input/
+
+data:
+  train:
+    filename: norm_train.csv
+    batch_size: 16
+  test:
+    filename: norm_test.csv
+    batch_size: 16
+

@@ -27,6 +27,7 @@ class Simple(pl.LightningModule):
             )
             self.hidden_layers.append(hidden)
         
+    
     def forward(self, x):
         x = self.input_layer(x)
         if self.hidden_count > 0:
@@ -34,6 +35,7 @@ class Simple(pl.LightningModule):
         x = self.output_layer(x)
         return x
 
+    
     def training_step(self, batch, batch_idx):
         x, y = batch
         out = self.forward(x)
@@ -43,10 +45,32 @@ class Simple(pl.LightningModule):
         self.log("train_loss", loss)
         return loss
 
+    
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        out = self.forward(x)
+
+        loss = self.loss(out, y)
+        # Logging to TensorBoard by default
+        self.log("val_loss", loss)
+        return loss
+    
+    
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        out = self.forward(x)
+
+        loss = self.loss(out, y)
+        # Logging to TensorBoard by default
+        self.log("test_loss", loss)
+        return loss
+
+    
     def loss(out, y):
         loss = nn.functional.cross_entropy(out, y)
         return loss
 
+    
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
         return optimizer
