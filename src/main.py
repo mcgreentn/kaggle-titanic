@@ -11,11 +11,15 @@ def main():
     simple_params = settings.get("models", {}).get("simple")
     model = Simple(simple_params)
     dm = Titanic(settings.get("config"), settings.get("data"))
-    dm.setup(stage="fit")
+    # dm.setup(stage="fit")
     trainer = Trainer(max_epochs=simple_params.get("epochs"))
-    trainer.fit(model, dm)
+    # trainer.fit(model, dm)
 
+    dm.setup(stage="test")
+    trainer.fit(model, dm.train_dataloader())
+    predictions = trainer.predict(model, dm.test_dataloader())
+    print(predictions)
     # setup random forest with boosting
 
-
-main()
+if __name__ == '__main__':
+    main()

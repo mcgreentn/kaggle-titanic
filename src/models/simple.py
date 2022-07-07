@@ -1,4 +1,5 @@
 from torch import optim, nn
+from statistics import mean
 import pytorch_lightning as pl
 import torch
 class Simple(pl.LightningModule):
@@ -17,7 +18,7 @@ class Simple(pl.LightningModule):
         )
         self.output_layer = nn.Sequential(
             nn.Linear(self.hidden_size, self.output_size),
-            nn.Sigmoid()
+            # nn.Sigmoid()
         )
 
         self.hidden_layers = nn.Sequential()
@@ -52,8 +53,10 @@ class Simple(pl.LightningModule):
         out = self.forward(x)
 
         loss = self.loss(out, y)
+        accuracy = self.accuracy(out, y)
         # Logging to TensorBoard by default
         self.log("val_loss", loss)
+        self.log("val_accuracy", accuracy)
         return loss
     
     
@@ -66,12 +69,36 @@ class Simple(pl.LightningModule):
         self.log("test_loss", loss)
         return loss
 
-    
+    def predict_step(self, batch, batch_idx):
+        x, pass_idx = batch
+        
+        out = self.forward(x)
+
+        prediction = self.make_prediction(out)
+        prediction = torch.tensor(prediction)
+        combo = torch.cat((pass_idx.unsqueeze(1), prediction), 1)
+
+        return combo
+        
+
     def loss(self, out, y):
-        loss_func = nn.CrossEntropyLoss()
+        loss_func = nn.BCEWithLogitsLoss()
         loss = loss_func(out, y)
         return loss
 
+    def accuracy(self, out, y):
+        y = y.numpy()
+        prediction =self.make_prediction(out)
+        accuracy = abs(prediction - y)
+        accuracy = 1 - accuracy.mean()
+        return accuracy
+
+
+    def make_prediction(self, out):
+        sig = nn.Sigmoid()
+        prediction = sig(out).numpy()
+        prediction = torch.tensor(prediction.round())
+        return prediction
     
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=self.lr)
