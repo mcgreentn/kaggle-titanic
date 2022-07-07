@@ -1,6 +1,6 @@
 from torch import optim, nn
 import pytorch_lightning as pl
-
+import torch
 class Simple(pl.LightningModule):
     def __init__(self, params):
         super().__init__()
@@ -17,6 +17,7 @@ class Simple(pl.LightningModule):
         )
         self.output_layer = nn.Sequential(
             nn.Linear(self.hidden_size, self.output_size),
+            nn.Sigmoid()
         )
 
         self.hidden_layers = nn.Sequential()
@@ -66,8 +67,9 @@ class Simple(pl.LightningModule):
         return loss
 
     
-    def loss(out, y):
-        loss = nn.functional.cross_entropy(out, y)
+    def loss(self, out, y):
+        loss_func = nn.CrossEntropyLoss()
+        loss = loss_func(out, y)
         return loss
 
     

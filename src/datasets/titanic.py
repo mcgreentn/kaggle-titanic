@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from torch.utils.data import Dataset
 
 class Titanic(Dataset):
@@ -15,6 +16,11 @@ class Titanic(Dataset):
         return df
 
     def __getitem__(self, index):
-        y = self.raw_data["Survived"]
-        x = self.raw_data.drop["Survived"]
-        return x.iloc[index].to_numpy(), y.iloc[index].to_numpy()
+        y = self.raw_data[["Survived_1", "Survived_2"]]
+        x = self.raw_data.drop(["Survived_1", "Survived_2", "Unnamed: 0"], axis=1)
+        x = x.iloc[index].to_numpy().astype(np.float32)
+        target = y.iloc[index].to_numpy().astype(np.float32)
+        return x, target
+    
+    def __len__(self):
+        return len(self.raw_data)
